@@ -12,6 +12,7 @@ import os
 
 
 from generator_utils import copy_range
+from utils import resource_path
 
 def generate(df : DataFrame):
     # df = pd.read_csv('./output.csv')
@@ -90,7 +91,7 @@ def generate(df : DataFrame):
     
         leagues[f'{row["league"]}'].append(league_match)
     
-    wb = xl.load_workbook('./Myfile-decrypted.xlsx')
+    wb = xl.load_workbook(resource_path('Myfile-decrypted.xlsx'))
     ws = wb.active
     
     headers = ws['A2' : 'AM2'][0]
@@ -158,9 +159,10 @@ def generate(df : DataFrame):
         os.mkdir('./output')
         pass
     except OSError as e:
-        print(e)
+        # print(e)
+        pass
     
     now = datetime.datetime.now()
     name = str(now).split('.')[0].replace(':', '')
-    print(name)
+    # print(name)
     wb.save(f'./output/{name}.xlsx')

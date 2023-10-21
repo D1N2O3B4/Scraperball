@@ -11,17 +11,18 @@ import time
 import traceback
 
 # custom Libraries
-from details2 import getMatchDetails
+from details import getMatchDetails
 from generator import generate
-from utils import scroll_to
+from utils import scroll_to, resource_path
 
 
 # connecting to the selenium webdriver and opening url
 
-DRIVER_PATH = './geckodriver'
-service = Service(DRIVER_PATH, log_output=None)
+DRIVER_PATH = resource_path('geckodriver')
+
+service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
-# firefox_options.add_argument('--headless')
+firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 driver.implicitly_wait(10)
@@ -63,15 +64,31 @@ def append_to_stats(data):
         stats[key].append(data[str(key).lower()])
 
 
-# toggling the simplified mode
-driver.find_element(
-    By.CSS_SELECTOR, '[value="/free/FreeSoccer/?type=simply"]').click()
+# mute site
+def mute_site():  
+    driver.find_element(By.CSS_SELECTOR, "li .filterLi:first-child").click()
+    driver.find_element(By.CSS_SELECTOR, 'select [name="selectsound"] option:last-child').click()
+    driver.find_element(By.CSS_SELECTOR, ".sotit .cc a").click()
+    
+try:
+    mute_site()
+except:
+    print("couldn't mute")
+    pass
 
-# sorting matches by leagues
-driver.find_element(By.CSS_SELECTOR, '[value="league"]').click()
+
+def configure_matches():
+    # toggling the simplified mode
+    driver.find_element(
+        By.CSS_SELECTOR, '[value="/free/FreeSoccer/?type=simply"]').click()
+
+    # sorting matches by leagues
+    driver.find_element(By.CSS_SELECTOR, '[value="league"]').click()
+
+configure_matches()
 
 # delay so everything gets loaded
-time.sleep(3)
+time.sleep(2)
 
 # get table with matches in rows
 # table = driver.find_element(By.ID, "table_live")
@@ -151,6 +168,7 @@ while j < len(rows):
                     driver.switch_to.window(window)
                     driver.implicitly_wait(10)
 
+                    print(f"{j + 1} / {len(rows)}")
                     # get match details
                     match_stats = getMatchDetails(
                         driver, home_name, away_name, league_name)
@@ -169,9 +187,9 @@ while j < len(rows):
         j += 1
             
         i += 1
-        if i >= 2:
-            # time.sleep(10)
-            break
+        # if i >= 5:
+        #     # time.sleep(10)
+        #     break
 
     except StaleElementReferenceException as e:
         # print(e.msg)
