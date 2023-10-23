@@ -26,10 +26,10 @@ def getMatchDetails(driver: WebDriver, homeTeam: str, awayTeam: str, leagueTitle
         'h2h': 0,
         'h2a': 0,
         'fm': 0,
-        '5h': 0,
-        '5a': 0,
-        'l3h': 0,
-        'l3a': 0,
+        '5h': [0, 0],
+        '5a': [0, 0],
+        'l3h': [0, 0],
+        'l3a': [0, 0],
         'h%': 0,
         'a%': 0,
         'gd': 0
@@ -321,9 +321,13 @@ def getMatchDetails(driver: WebDriver, homeTeam: str, awayTeam: str, leagueTitle
         goal_difference.append(
             int(diff[0]) - int(diff[1])
         )
-
-    vals['5h'] = sum(last_5_home_goals) / max(len(last_5_home_goals), 1)
-    vals['l3h'] = sum(last_3_home_goals) / max(len(last_3_home_goals), 1)
+    last_home_goals = 0
+    if len(last_5_home_goals) > 0:
+        last_home_goals = last_5_home_goals[0]
+    vals['5h'] = [sum(last_5_home_goals) /
+                  max(len(last_5_home_goals), 1), last_home_goals]
+    vals['l3h'] = [sum(last_3_home_goals) /
+                   max(len(last_3_home_goals), 1), last_home_goals]
     vals['h%'] = sum(home_handicap_percentage) / \
         max(len(home_handicap_percentage), 1)
     vals['gd'] = sum(goal_difference)
@@ -390,8 +394,13 @@ def getMatchDetails(driver: WebDriver, homeTeam: str, awayTeam: str, leagueTitle
         last_3_away_goals.append(int(diff[1]))
         goal_difference.append(int(diff[1]) - int(diff[0]))
 
-    vals['5a'] = sum(last_5_away_goals) / max(len(last_5_away_goals), 1)
-    vals['l3a'] = sum(last_3_away_goals) / max(len(last_3_away_goals), 1)
+    last_away_goals = 0
+    if len(last_5_away_goals) > 0:
+        last_away_goals = last_5_away_goals[0]
+    vals['5a'] = [sum(last_5_away_goals) /
+                  max(len(last_5_away_goals), 1), last_away_goals]
+    vals['l3a'] = [sum(last_3_away_goals) /
+                   max(len(last_3_away_goals), 1), last_away_goals]
     vals['a%'] = sum(away_handicap_percentage) / \
         max(len(away_handicap_percentage), 1)
     vals['gd'] = vals['gd'] - sum(goal_difference)

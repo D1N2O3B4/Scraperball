@@ -187,9 +187,9 @@ while j < len(rows):
         j += 1
             
         i += 1
-        # if i >= 5:
+        if i >= 5:
         #     # time.sleep(10)
-        #     break
+            break
 
     except StaleElementReferenceException as e:
         # print(e.msg)
@@ -206,7 +206,7 @@ while j < len(rows):
 
 try:
     df = pd.DataFrame(stats)
-
+    # print(df)
     # place collected info into excel sheet provided
     generate(df)
 

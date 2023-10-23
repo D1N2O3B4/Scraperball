@@ -122,22 +122,25 @@ def generate(df : DataFrame):
                 cell.alignment = Alignment(horizontal='center', vertical="center")
                 
                 if prop == "5H" or prop == "5A" or prop == "L3H" or prop == "L3A":
-                    if val >= 7:
+                    cell.value = val[0]
+                    last_goals = val[1]
+                    if last_goals == 7:
                         cell.fill = PatternFill("solid", fgColor="663300")
-                    elif val >= 6:
+                    elif last_goals == 6:
                         cell.fill = PatternFill("solid", fgColor="000099")
-                    elif val >= 5:
+                    elif last_goals == 5:
                         cell.fill = PatternFill("solid", fgColor="000000")
-                    elif val >= 4:
+                    elif last_goals == 4:
                         cell.fill = PatternFill("solid", fgColor="FF00FF")
-                    elif val >= 3:
+                    elif last_goals == 3:
                         cell.fill = PatternFill("solid", fgColor="FF8000")
-                    elif val >= 2:
+                    elif last_goals == 2:
                         cell.fill = PatternFill("solid", fgColor="56B0F0")
-                    elif val >= 1:
+                    elif last_goals == 1:
                         cell.fill = PatternFill("solid", fgColor="059C00")
-                    elif val >= 0:
-                        cell.fill = PatternFill("solid", fgColor="FF0000")                
+                    elif last_goals == 0:
+                        cell.fill = PatternFill("solid", fgColor="FF0000")  
+                    continue              
                 
                 if prop == 'Stat':
                     cell.fill = PatternFill("solid", fgColor="C6EFCE")
