@@ -11,9 +11,11 @@ import time
 import traceback
 
 # custom Libraries
-from details import getMatchDetails
+# from details import getMatchDetails
 from generator import generate
 from utils import scroll_to, resource_path
+
+from bs_scraper import get_data
 
 
 # connecting to the selenium webdriver and opening url
@@ -105,6 +107,8 @@ i = 0
 
 # for row in rows:
 # for j in range(len(rows)):
+# start timer
+start = time.time()
 j = 0
 while j < len(rows): 
     row = rows[j]
@@ -170,11 +174,16 @@ while j < len(rows):
 
                     print(f"{j + 1} / {len(rows)}")
                     # get match details
-                    match_stats = getMatchDetails(
-                        driver, home_name, away_name, league_name)
+                    # match_stats = getMatchDetails(
+                        # driver, home_name, away_name, league_name)
 
                     # enlist match details
-                    append_to_stats(match_stats)
+                    # append_to_stats(match_stats)
+                    
+                    match_data = get_data(driver, home_name, away_name, league_name)
+                    append_to_stats(match_data)
+
+                    
 
                 except Exception as e:
                     print(e)
@@ -187,9 +196,9 @@ while j < len(rows):
         j += 1
             
         i += 1
-        if i >= 5:
+        # if i >= 20:
         #     # time.sleep(10)
-            break
+            # break
 
     except StaleElementReferenceException as e:
         # print(e.msg)
@@ -203,6 +212,10 @@ while j < len(rows):
         # print(e)
         # traceback.print_stack()
 
+# end timer
+end = time.time()
+
+print(f'total runtime = {end - start} seconds')
 
 try:
     df = pd.DataFrame(stats)
