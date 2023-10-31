@@ -97,8 +97,12 @@ def generate(df : DataFrame):
     headers = ws['A2' : 'AM2'][0]
     headers = [x.value for x in headers]
     current = 2
-    
+    start = None
     for key in leagues.keys():
+        
+        if start is not None:
+            ws.row_dimensions.group(start, current - 1, hidden=True)
+
         copy_range('A2:BI2', ws, current - 2)
         for i, header in enumerate(headers):
             if i == 0:
@@ -106,7 +110,7 @@ def generate(df : DataFrame):
                 continue
             # ws.cell(row=current, column=(i+1)).value = header
         current += 1
-        
+        start = current
         for match in leagues[key]:
             # ws.cell(row=current, culumn=)
             for prop in match.keys():
@@ -120,11 +124,23 @@ def generate(df : DataFrame):
 
                 val = match[prop]
                 cell.alignment = Alignment(horizontal='center', vertical="center")
+
+                if prop == "H" or prop == "A":
+
+                    # increase font size by 2, bolden it and set font color to FDFF05 and keep the rest of the font properties
+                    cell.font = Font(size=cell.font.size + 2, bold=True, color="FDFF05")
+                    
+                    
+                    if val == 'W':
+                        cell.fill = PatternFill("solid", fgColor="56B0F0")
+                    elif val == 'L':
+                        cell.fill = PatternFill("solid", fgColor="FF0000")
                 
                 if prop == "5H" or prop == "5A" or prop == "L3H" or prop == "L3A":
                     cell.value = val[0]
                     last_goals = val[1]
-                    if last_goals == 7:
+                    # print(last_goals)
+                    if last_goals >= 7:
                         cell.fill = PatternFill("solid", fgColor="663300")
                     elif last_goals == 6:
                         cell.fill = PatternFill("solid", fgColor="000099")
@@ -156,6 +172,8 @@ def generate(df : DataFrame):
                 cell.value = match[prop]
 
             current += 1
+    if start is not None:
+        ws.row_dimensions.group(start, current - 1, hidden=True)
     
     
     try:
