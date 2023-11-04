@@ -24,7 +24,7 @@ DRIVER_PATH = resource_path('geckodriver')
 
 service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
-firefox_options.add_argument('--headless')
+# firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 driver.implicitly_wait(10)
@@ -196,7 +196,7 @@ while j < len(rows):
         j += 1
             
         i += 1
-        # if i >= 20:
+        # if i >= 5:
         #     # time.sleep(10)
             # break
 

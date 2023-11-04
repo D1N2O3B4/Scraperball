@@ -101,7 +101,7 @@ def generate(df : DataFrame):
     for key in leagues.keys():
         
         if start is not None:
-            ws.row_dimensions.group(start, current - 1, hidden=True)
+            ws.row_dimensions.group(start, current - 1, hidden=False)
 
         copy_range('A2:BI2', ws, current - 2)
         for i, header in enumerate(headers):
@@ -128,7 +128,7 @@ def generate(df : DataFrame):
                 if prop == "H" or prop == "A":
 
                     # increase font size by 2, bolden it and set font color to FDFF05 and keep the rest of the font properties
-                    cell.font = Font(size=cell.font.size + 2, bold=True, color="FDFF05")
+                    # cell.font = Font(size=cell.font.size + 2, bold=True, color="FDFF05")
                     
                     
                     if val == 'W':
@@ -173,7 +173,10 @@ def generate(df : DataFrame):
 
             current += 1
     if start is not None:
-        ws.row_dimensions.group(start, current - 1, hidden=True)
+        ws.row_dimensions.group(start, current - 1, hidden=False)
+    
+    cell = ws.cell(row=current, column=1)
+    cell.value = cell.value
     
     
     try:
