@@ -4,6 +4,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException, StaleElementReferenceException
+from selenium.webdriver.support.select import Select
 
 
 import pandas as pd
@@ -24,7 +25,7 @@ DRIVER_PATH = resource_path('geckodriver')
 
 service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
-# firefox_options.add_argument('--headless')
+firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 driver.implicitly_wait(10)
@@ -78,23 +79,32 @@ except:
     print("couldn't mute")
     pass
 
-
+count = 0
 def configure_matches():
-    # toggling the simplified mode
-    driver.find_element(
-        By.CSS_SELECTOR, '[value="/free/FreeSoccer/?type=simply"]').click()
+    try:
+        el = driver.find_element(By.CSS_SELECTOR, '#ShowAllSel')
+        select = Select(el)
+        select.select_by_visible_text('Simplify')
 
-    # sorting matches by leagues
-    driver.find_element(By.CSS_SELECTOR, '[value="league"]').click()
-
+        # sorting matches by leagues
+        el = driver.find_element(By.CSS_SELECTOR, '#OrderSel')
+        select = Select(el)
+        select.select_by_visible_text('By league')
+    except:
+        if count < 10:
+            configure_matches()
+        else:
+            print('something went wrong, retrying...')
+            driver.quit()
+            
+            
 configure_matches()
+
 
 # delay so everything gets loaded
 time.sleep(2)
 
 # get table with matches in rows
-# table = driver.find_element(By.ID, "table_live")
-# rows = table.find_elements(By.TAG_NAME, "tr")
 rows = driver.find_elements(By.CSS_SELECTOR, "#table_live tr")
 
 # get reference to the current window
@@ -105,14 +115,11 @@ i = 0
 # loops through each row that has match info
 # clicks on the details link to navigate to the match details page
 
-# for row in rows:
-# for j in range(len(rows)):
 # start timer
 start = time.time()
 j = 0
 while j < len(rows): 
     row = rows[j]
-    # print(row.id)
     # check if alert appears and dismiss it
     try:
         alert = driver.switch_to.alert
@@ -130,8 +137,13 @@ while j < len(rows):
             j += 1
             continue
 
+        row_id = row.get_attribute('id')
+        if "tr" not in row_id:
+            j += 1
+            continue
+        
         row_class = row.get_attribute('class')
-        if row_class == "scoretitle":
+        if row_class == "scoretitle" or row_class == "notice":
             j += 1
             continue
 
@@ -174,16 +186,9 @@ while j < len(rows):
 
                     print(f"{j + 1} / {len(rows)}")
                     # get match details
-                    # match_stats = getMatchDetails(
-                        # driver, home_name, away_name, league_name)
-
-                    # enlist match details
-                    # append_to_stats(match_stats)
                     
                     match_data = get_data(driver, home_name, away_name, league_name)
                     append_to_stats(match_data)
-
-                    
 
                 except Exception as e:
                     print(e)
@@ -208,9 +213,10 @@ while j < len(rows):
         
 
     except Exception as e:
-        print('exception')
+        # print(e)
         # print(e)
         # traceback.print_stack()
+        pass
 
 # end timer
 end = time.time()
