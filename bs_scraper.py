@@ -6,33 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 import traceback
 
-from utils import scroll_to
+from utils import scroll_to, data_blueprint
 
-vals = {
-    "home": "",
-    "away": "",
-    "league": "",
-    'hf': 0,
-    'lh': 0,
-    'af': 0,
-    'la': 0,
-    '3h': 0,
-    '3w': 0,
-    'h': '-',
-    'a': '-',
-    'hh': 0,
-    'ha': 0,
-    'h2h': 0,
-    'h2a': 0,
-    'fm': 0,
-    '5h': [0, 0],
-    '5a': [0, 0],
-    'l3h': [0, 0],
-    'l3a': [0, 0],
-    'h%': 0,
-    'a%': 0,
-    'gd': 0
-}
 
 
 def select(driver: WebDriver, selector: str):
@@ -192,15 +167,19 @@ def get_percentage(scores: list, home_team_match: bool):
 
 
 def get_data(driver: WebDriver, home: str, away: str, league: str):
-    print(f'{home} vs {away}')
+    vals = data_blueprint()
+    
     vals['home'] = home
     vals['away'] = away
     vals['league'] = league
+    
+    print(f'{home} vs {away}')
 
     try:
         prepare(driver)
     except Exception as e:
         pass
+    
     html = driver.page_source
     soup = bs(html, 'lxml')
 

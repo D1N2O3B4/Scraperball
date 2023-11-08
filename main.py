@@ -14,7 +14,7 @@ import traceback
 # custom Libraries
 # from details import getMatchDetails
 from generator import generate
-from utils import scroll_to, resource_path
+from utils import scroll_to, resource_path, get_cols
 
 from bs_scraper import get_data
 
@@ -25,7 +25,7 @@ DRIVER_PATH = resource_path('geckodriver')
 
 service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
-firefox_options.add_argument('--headless')
+# firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 driver.implicitly_wait(10)
@@ -35,31 +35,7 @@ driver.get('https://free.nowgoal.ltd/Free/FreeSoccer?tv=false')
 # initialise all columns as lists
 # put lists in a dictionary and convert into a pandas dataframe
 
-stats = {
-    "league": [],
-    "home": [],
-    "away": [],
-    "HF": [],
-    "AF": [],
-    "3H": [],
-    "3W": [],
-    "H": [],
-    "A": [],
-    "LH": [],
-    "LA": [],
-    "HH": [],
-    "H2H": [],
-    "HA": [],
-    "H2A": [],
-    "FM": [],
-    "5A": [],
-    "5H": [],
-    "L3H": [],
-    "L3A": [],
-    "H%": [],
-    "A%": [],
-    "GD": []
-}
+stats = get_cols()
 
 
 def append_to_stats(data):
@@ -76,7 +52,7 @@ def mute_site():
 try:
     mute_site()
 except:
-    print("couldn't mute")
+    # print("couldn't mute")
     pass
 
 count = 0
@@ -201,9 +177,9 @@ while j < len(rows):
         j += 1
             
         i += 1
-        # if i >= 5:
-        #     # time.sleep(10)
-            # break
+        if i >= 100:
+            # time.sleep(10)
+            break
 
     except StaleElementReferenceException as e:
         # print(e.msg)
