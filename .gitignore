@@ -8,3 +8,4 @@ dist
 *.log
 *.spec
 *.bash
+process.txt

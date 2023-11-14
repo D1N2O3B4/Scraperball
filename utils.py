@@ -9,6 +9,7 @@ import sys
 
 def scroll_to(driver: WebDriver, element: WebElement):
     driver.execute_script("arguments[0].scrollIntoView(true);", element)
+    return
 
 
 def resource_path(file):
