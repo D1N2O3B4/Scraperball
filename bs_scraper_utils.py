@@ -1,10 +1,14 @@
 from bs4 import BeautifulSoup as bs
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.common.exceptions import NoSuchElementException
 from bs4.element import ResultSet, Tag
 
 
 from utils import scroll_to
+
+def joinString(string: str):
+    return ''.join(string.split())
 
 def select(driver: WebDriver, selector: str):
     try:
@@ -12,22 +16,26 @@ def select(driver: WebDriver, selector: str):
         scroll_to(driver, select)
         select.click()
 
-    except Exception as e:
-        # print(traceback.format_exc())
+    except NoSuchElementException as e:
+        # print(e)
         pass
-    pass
+    except Exception as e:
+        # print(e)
+        pass
+    
 
 
 def prepare(driver: WebDriver):
     # click checkboxes
+    # select(driver, "#checkboxleague3")
+    select(driver, "#selectMatchCount3 > option:last-child")
+    
     # select(driver, "#checkboxleague1")
     select(driver, "#selectMatchCount1 > option:last-child")
 
     # select(driver, "#checkboxleague2")
     select(driver, "#selectMatchCount2 > option:last-child")
 
-    # select(driver, "#checkboxleague3")
-    select(driver, "#selectMatchCount3 > option:last-child")
 
 def filter_rows(rows: ResultSet[Tag], league: str, num: int):
     filtered_rows = []
@@ -48,13 +56,9 @@ def filter_rows(rows: ResultSet[Tag], league: str, num: int):
 
         if "none" in style:
             continue
-        try:
-            league_name = row.select_one("td:first-child").attrs['title']
-        except Exception as e:
-            league_name = ""
-            
-        if league in league_name:
-            filtered_rows.append(row)
+        
+        filtered_rows.append(row)
+        
         
     return filtered_rows
 
@@ -75,22 +79,23 @@ def get_last_goals(rows: ResultSet[Tag], team: str, num: int, home_team_match: b
             f"td:nth-child(4n) > .fscore_{num}").get_text()
 
         if is_team_form or is_h2h:
-            if team == home_team:
+            if joinString(team) == joinString(home_team):
                 home_scores.append(match_scores)
                 continue
-            elif team == away_team:
+            elif joinString(team) == joinString(away_team):
                 away_scores.append(match_scores)
                 continue
         else:
             if home_team_match:
-                if team == home_team:
+                if joinString(team) == joinString(home_team):
                     home_scores.append(match_scores)
                     continue
             else:
-                if team == away_team:
+                if joinString(team) == joinString(away_team):
                     away_scores.append(match_scores)
                     continue
     if is_team_form:
+        # print(home_scores, away_scores)
         return home_scores[:3], away_scores[:3]
     elif is_h2h:
         return home_scores[:5], away_scores[:5]
@@ -120,16 +125,20 @@ def calculate_points(scores: list, home_team_match: bool):
 
 
 def calculate_team_form(home_scores: list, away_scores: list):
+    # print(home_scores, away_scores)
+    index_0_min = min(len(home_scores[0]), len(away_scores[0]))
+    index_1_min = min(len(home_scores[1]), len(away_scores[1]))
+    
     home_team__home_points = calculate_points(
-        home_scores[0], home_team_match=True)
+        home_scores[0][:index_0_min], home_team_match=True)
     home_team_away_points = calculate_points(
-        home_scores[1], home_team_match=False)
+        home_scores[1][:index_1_min], home_team_match=False)
     home_team_points = home_team__home_points + home_team_away_points
 
     away_team__home_points = calculate_points(
-        away_scores[0], home_team_match=True)
+        away_scores[0][:index_0_min], home_team_match=True)
     away_team_away_points = calculate_points(
-        away_scores[1], home_team_match=False)
+        away_scores[1][:index_1_min], home_team_match=False)
     away_team_points = away_team__home_points + away_team_away_points
 
     return home_team_points - away_team_points
