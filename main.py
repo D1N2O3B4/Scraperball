@@ -55,9 +55,9 @@ def configure_matches():
     global count
     count += 1
     try:
-        el = driver.find_element(By.CSS_SELECTOR, '#ShowAllSel')
-        select = Select(el)
-        select.select_by_visible_text('Simplify')
+        # el = driver.find_element(By.CSS_SELECTOR, '#ShowAllSel')
+        # select = Select(el)
+        # select.select_by_visible_text('Simplify')
 
         # sorting matches by leagues
         el = driver.find_element(By.CSS_SELECTOR, '#OrderSel')
