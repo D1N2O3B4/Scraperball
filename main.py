@@ -24,6 +24,7 @@ from generator import generate
 from utils import scroll_to, resource_path, get_cols
 
 from bs_scraper import get_data
+from match_odds import get_match_odds
 
 
 # connecting to the selenium webdriver and opening url
@@ -33,7 +34,7 @@ DRIVER_PATH = resource_path('geckodriver')
 service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
 firefox_options.set_preference("media.volume_scale", "0.0")
-firefox_options.add_argument('--headless')
+# firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 # driver.implicitly_wait(5)
@@ -89,7 +90,7 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
             progress.update(task, advance=1)
 
             if len(filtered_rows) >= 10:
-                # break
+                break
                 pass
             try:
                 if not row.is_displayed():
@@ -155,7 +156,7 @@ with Progress(transient=True) as progress:
 
             league_info = row.find_element(By.CLASS_NAME, "black-down")
             league_title = league_info.get_attribute("title")
-            league_short = league_info.find_element(By.TAG_NAME, "a").text
+            # league_short = league_info.find_element(By.TAG_NAME, "a").text
 
             home_team = row.find_element(By.ID, f"team1_{_id}")
             home_name = home_team.text
@@ -187,8 +188,8 @@ with Progress(transient=True) as progress:
                         print(f"{j + 1} / {len(rows)}")
                         # get match details
 
-                        match_data = get_data(driver, home_name, away_name, league_title, league_short)
-                        append_to_stats(match_data)
+                        # match_data = get_data(driver, home_name, away_name, league_title)
+                        # append_to_stats(match_data)
 
                     except Exception as e:
                         print('match skipped!!! - contact support team')
@@ -199,6 +200,41 @@ with Progress(transient=True) as progress:
                     # close match details tab and switch driver back to home page
                     driver.close()
                     driver.switch_to.window(parent_window)
+            
+            # getting odds data
+            # gets match odds link button
+            link = row.find_element(By.CSS_SELECTOR, ".toolimg > .odds-icon")
+
+            # scroll to make button visible on the page
+            scroll_to(driver, link)
+
+            # click to navigate to match details page
+            actions.click(link).perform()
+            actions.reset_actions()
+
+            windows = driver.window_handles
+
+            for window in windows:
+                if window != parent_window:
+                    try:
+                        driver.switch_to.window(window)
+
+                        # print(f"")
+                        # get match details
+
+                        match_odds = get_match_odds(driver)
+                        # append_to_stats(match_data)
+
+                    except Exception as e:
+                        print('match skipped!!! - contact support team')
+                        # print(e)
+                        # traceback.print_stack()
+                        pass
+
+                    # close match details tab and switch driver back to home page
+                    driver.close()
+                    driver.switch_to.window(parent_window)            
+            
 
             j += 1
 
@@ -210,11 +246,11 @@ with Progress(transient=True) as progress:
 
 
         except Exception as e:
-            print("encountered an error....app will now exit")
+            # print("encountered an error....app will now exit")
             # driver.quit()
 
-            # print(e)
-            # traceback.print_stack()
+            print(e)
+            traceback.print_stack()
             pass
 
 # end timer
