@@ -12,7 +12,7 @@ from utils import data_blueprint
 from bs_scraper_utils import joinString, prepare, get_percentage, get_goals, calculate_points, calculate_team_form, get_last_goals, get_table_rows
 
 
-def get_data(driver: WebDriver, home: str, away: str, league: str, league_short: str):
+def get_data(driver: WebDriver, home: str, away: str, league: str):
     vals = data_blueprint()
 
     # wait for page to load

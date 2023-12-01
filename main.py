@@ -33,7 +33,7 @@ DRIVER_PATH = resource_path('geckodriver')
 service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
 firefox_options.set_preference("media.volume_scale", "0.0")
-firefox_options.add_argument('--headless')
+# firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 # driver.implicitly_wait(5)
@@ -155,7 +155,7 @@ with Progress(transient=True) as progress:
 
             league_info = row.find_element(By.CLASS_NAME, "black-down")
             league_title = league_info.get_attribute("title")
-            league_short = league_info.find_element(By.TAG_NAME, "a").text
+            # league_short = league_info.find_element(By.TAG_NAME, "a").text
 
             home_team = row.find_element(By.ID, f"team1_{_id}")
             home_name = home_team.text
@@ -187,7 +187,7 @@ with Progress(transient=True) as progress:
                         print(f"{j + 1} / {len(rows)}")
                         # get match details
 
-                        match_data = get_data(driver, home_name, away_name, league_title, league_short)
+                        match_data = get_data(driver, home_name, away_name, league_title)
                         append_to_stats(match_data)
 
                     except Exception as e:
