@@ -28,17 +28,20 @@ from bs_scraper import get_data
 
 # connecting to the selenium webdriver and opening url
 
-DRIVER_PATH = resource_path('geckodriver')
+try:
+    DRIVER_PATH = resource_path('geckodriver')
 
-service = Service(DRIVER_PATH, log_output="myapp.log")
-firefox_options = Options()
-firefox_options.set_preference("media.volume_scale", "0.0")
-# firefox_options.add_argument('--headless')
-driver = webdriver.Firefox(firefox_options, service=service)
-driver.maximize_window()
-# driver.implicitly_wait(5)
-driver.get('https://free.nowgoal.ltd/Free/FreeSoccer?tv=false')
-
+    service = Service(DRIVER_PATH, log_output="myapp.log")
+    firefox_options = Options()
+    firefox_options.set_preference("media.volume_scale", "0.0")
+    firefox_options.add_argument('--headless')
+    driver = webdriver.Firefox(firefox_options, service=service)
+    driver.maximize_window()
+    # driver.implicitly_wait(5)
+    driver.get('https://free.nowgoal.ltd/Free/FreeSoccer?tv=false')
+except Exception as e:
+    print('please make sure you have Mozilla Firefox installed!!!')
+    exit(1)
 
 # initialise all columns as lists
 # put lists in a dictionary and convert into a pandas dataframe
