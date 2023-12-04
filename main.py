@@ -30,15 +30,19 @@ from match_odds import get_match_odds
 # connecting to the selenium webdriver and opening url
 
 DRIVER_PATH = resource_path('geckodriver')
-
-service = Service(DRIVER_PATH, log_output="myapp.log")
-firefox_options = Options()
-firefox_options.set_preference("media.volume_scale", "0.0")
-firefox_options.add_argument('--headless')
-driver = webdriver.Firefox(firefox_options, service=service)
-driver.maximize_window()
-# driver.implicitly_wait(5)
-driver.get('https://free.nowgoal.ltd/Free/FreeSoccer?tv=false')
+try:
+    service = Service(DRIVER_PATH, log_output="myapp.log")
+    firefox_options = Options()
+    firefox_options.set_preference("media.volume_scale", "0.0")
+    firefox_options.add_argument('--headless')
+    driver = webdriver.Firefox(firefox_options, service=service)
+    driver.maximize_window()
+    # driver.implicitly_wait(5)
+    driver.get('https://free.nowgoal.ltd/Free/FreeSoccer?tv=false')
+except Exception as e:
+    print("something went wrong, program will now exit")
+    exit()
+parent_window = driver.current_window_handle
 
 
 # initialise all columns as lists
@@ -84,7 +88,6 @@ table = WebDriverWait(driver, 10).until(
 rows = driver.find_elements(By.CSS_SELECTOR, "#table_live tr")
 rows = filter_rows(rows)
 # get reference to the current window
-parent_window = driver.current_window_handle
 
 i = 0
 
@@ -155,9 +158,10 @@ with Progress(transient=True) as progress:
 
                     except Exception as e:
                         print('match skipped!!! - contact support team')
-                        print(e)
-                        traceback.print_stack()
-                        pass
+                        # print(str(e))
+                        # traceback.print_stack()
+                        
+                    
 
                     # close match details tab and switch driver back to home page
                     driver.close()
@@ -165,18 +169,18 @@ with Progress(transient=True) as progress:
             
             # getting odds data
             # gets match odds link button
-            link = row.find_element(By.CSS_SELECTOR, ".toolimg > .odds-icon")
+            link2 = row.find_element(By.CSS_SELECTOR, ".toolimg > .odds-icon")
 
             # scroll to make button visible on the page
-            scroll_to(driver, link)
+            scroll_to(driver, link2)
 
             # click to navigate to match details page
-            actions.click(link).perform()
+            actions.click(link2).perform()
             actions.reset_actions()
 
-            windows = driver.window_handles
+            windows2 = driver.window_handles
 
-            for window in windows:
+            for window in windows2:
                 if window != parent_window:
                     try:
                         driver.switch_to.window(window)
@@ -186,14 +190,56 @@ with Progress(transient=True) as progress:
 
                         match_odds = get_match_odds(driver)
                         # print(match_odds)
-                        if match_odds is not None and match_data is not None:
+                        if match_data is not None and match_odds is not None:
                             append_to_stats(match_data)
                             append_to_stats(match_odds)
+                            # calculating banker bet
+                            opening_odds = match_odds['O-O']
+                            odds_movement = match_odds['Diff']
+                            h2h = match_data['H2H']
+                            l3h = match_data['L3H'][0]
+                            l3a = match_data['L3A'][0]
+                            bf = [0, 5]
+                            # print(type(odds_movement), type(opening_odds), type(h2h), type(l3h), type(l3a))
+                            # print(odds_movement, opening_odds, h2h, l3h, l3a)
+
+                            if float(opening_odds) < 1.95:
+                                bf[0] += 1
+                            if int(odds_movement) >= 0:
+                                bf[0] += 1
+                            if h2h > 0.67:
+                                bf[0] += 1
+                            if (l3h - l3a) > 0:
+                                bf[0] += 1
+                                
+                            an = (match_data['HF']*40) - (match_data['AF']*40)
+                            ao = 1 if an > 0.01 else 0
+                            ap = (match_data['3H']*50) - (match_data['3W']*50)
+                            aq = 1 if ap > 0.01 else 0
+                            ar = 1 if match_data["HH"] > 0.51 else 0
+                            as_ = 1 if match_data["H2H"] > 0.34 else 0
+                            at = (match_data["HH"]*20) + (match_data["HA"]*10) + (match_data["H2H"] *30) + (match_data["H2A"] *10)
+                            au = (match_data["FM"] * 2)
+                            av = 1 if au > 0.01 else 0
+                            aw = match_data["GD"] * 2
+                            ax = 1 if aw > 0.01 else 0
+                            ay = (match_data["LH"] - match_data["LA"]) * -1
+                            
+                            # add the above
+                            for_ = an + ap + at + au + aw + ay
+                            
+                            if for_ >= 50:
+                                bf[0] += 1
+                            
+                            
+                            stats['BF'].append(bf)
+                            
+                            
 
                     except Exception as e:
                         print('match skipped!!! - contact support team')
-                        print(e)
-                        traceback.print_stack()
+                        # print(e)
+                        # traceback.print_stack()
                         pass
 
                     # close match details tab and switch driver back to home page
@@ -206,6 +252,8 @@ with Progress(transient=True) as progress:
         except StaleElementReferenceException as e:
             # print(e.msg)
             driver.refresh()
+            time.sleep(5)
+            configure_matches()
             rows = driver.find_elements(By.CSS_SELECTOR, "#table_live tr")
             continue
 
@@ -214,8 +262,8 @@ with Progress(transient=True) as progress:
             # print("encountered an error....app will now exit")
             # driver.quit()
 
-            print(e)
-            traceback.print_stack()
+            # print(e)
+            # traceback.print_stack()
             pass
 
 # end timer
@@ -225,13 +273,13 @@ print(f'total runtime = {end - start} seconds')
 
 try:
     df = pd.DataFrame(stats)
-    print(df)
+    # print(df)
     # place collected info into excel sheet provided
     generate(df)
 
 except Exception as e:
-    print(e)
-    traceback.print_stack()
+    # print(e)
+    # traceback.print_stack()
     pass
 
 # Stop program

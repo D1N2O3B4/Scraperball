@@ -33,14 +33,14 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
         home = soup.select_one("#fbheader .home .sclassName").get_text()
         away = soup.select_one("#fbheader .guest .sclassName").get_text()
     except Exception as e:
-        print(e)
+        # print(e)
         pass
 
     vals['Home'] = home
     vals['Away'] = away
     vals['League'] = league
 
-    print(f'{home} vs {away}')
+    # print(f'{home} vs {away}')
 
     home_rows = get_table_rows(soup, '#table_v1 > tbody > tr', league, 1)
     home_team_form = get_last_goals(
@@ -117,7 +117,7 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
             ".guest-div tbody > tr:nth-child(5n) > td:nth-child(2n)").get_text()
         away_points = soup.select_one(
             ".guest-div tbody > tr:nth-child(5n) > td:nth-child(8n)").get_text()
-    except:
+    except Exception as e:
         home_rank = ''
         num_home_matches = ''
         home_points = ''

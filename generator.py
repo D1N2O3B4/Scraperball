@@ -87,7 +87,6 @@ def generate(df : DataFrame):
                 continue
             # if key == "Hand2" or key == "Diff2" or key == "TG-HT" or key == "TG-2H": continue
             league_match[key] = row[key]
-        print(row)
         if row['League'] not in leagues:
             leagues[f'{row["League"]}'] = []
     
@@ -96,9 +95,8 @@ def generate(df : DataFrame):
     wb = xl.load_workbook(resource_path('Myfile-decrypted.xlsx'))
     ws = wb.active
     
-    headers = ws['A2' : 'AM2'][0]
+    headers = ws['A2' : 'BI2'][0]
     headers = [x.value for x in headers]
-    print(headers)
     current = 2
     start = None
     for key in leagues.keys():
@@ -111,6 +109,8 @@ def generate(df : DataFrame):
         copy_range('A2:BI2', ws, current - 2)
         for i, header in enumerate(headers):
             if i == 0:
+                if key == "Diff2" or key == "Hand2":
+                    key = key.replace('2', '')
                 ws.cell(row=current, column=i+1).value = key
                 continue
             # ws.cell(row=current, column=(i+1)).value = header
@@ -131,16 +131,19 @@ def generate(df : DataFrame):
                 cell.alignment = Alignment(horizontal='center', vertical="center")
 
                 if prop == "H" or prop == "A":
-
-                    # increase font size by 2, bolden it and set font color to FDFF05 and keep the rest of the font properties
-                    # cell.font = Font(size=cell.font.size + 2, bold=True, color="FDFF05")
-                    
-                    
                     if val == 'W':
                         cell.fill = PatternFill("solid", fgColor="56B0F0")
                     elif val == 'L':
                         cell.fill = PatternFill("solid", fgColor="FF0000")
                 
+                if prop == "H2H":
+                    if val >= 1:
+                        cell.fill = PatternFill("solid", fgColor="0D1E5E")
+                    elif val >= 0.33:
+                        cell.fill = PatternFill("solid", fgColor="808170")
+                    else:
+                        cell.fill = PatternFill("solid", fgColor="FF0000")
+                        
                 if prop == "5H" or prop == "5A" or prop == "L3H" or prop == "L3A":
                     cell.value = val[0]
                     last_goals = val[1]
@@ -174,6 +177,45 @@ def generate(df : DataFrame):
                 if prop == "Res":
                     continue
                 
+                if prop == "BF":
+                    bf = val
+                    bf_val = (bf[0]/bf[1]) * 100
+                    if bf_val >= 80:
+                        cell.fill = PatternFill("solid", fgColor="56B0F0")
+                    elif bf_val >= 40:
+                        cell.fill = PatternFill("solid", fgColor="424A41")
+                    else:
+                        cell.fill = PatternFill("solid", fgColor="356DB9")
+                    
+                    # for_cell = ws.cell(row=current, column=col - 2)
+                    # fr = for_cell.value
+                    # print(fr)
+                    # if int(fr) >= 50:
+                    #     bf[0] += 1
+                    cell.value = bf_val
+                    continue
+                
+                if prop == "Hand":
+                    if val == 0 or val == "0" or int(float(val)) == 0:
+                        cell.value = 'L'
+                        continue
+                    if float(val) < 0:
+                        cell.fill = PatternFill("solid", fgColor="FF0000")
+                    elif float(val) > 0:
+                        cell.fill = PatternFill("solid", fgColor="f1c232")
+                    
+                if prop == "O-O" or prop == "L-O" or prop == "TGO" or prop == "LO2":
+                    if float(val) < 1.95:
+                        cell.fill = PatternFill("solid", fgColor="f1c232")
+                    else:
+                        cell.fill = PatternFill("solid", fgColor="FF0000")
+                
+                if prop == "Diff" or prop == "Diff2":
+                    if int(val) < 0:
+                        cell.fill = PatternFill("solid", fgColor="FF0000")
+                    else:
+                        cell.fill = PatternFill("solid", fgColor="56B0F0")
+
                 cell.value = match[prop]
 
             current += 1

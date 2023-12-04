@@ -120,9 +120,15 @@ def get_live_odds(odds_data: list):
                 transition['diff'] += transition['movement'] - 1
             transition['movement'] = 0
             transition['odds'] = [live]
-            transition['range'] = f"{prev_handicap * -1} - {live_handicap * -1}"
+            start = f"{prev_handicap * -1}"
+            stop = f"{live_handicap * -1}".replace('-', '')
+            transition['range'] = f"{start} - {stop}"
             prev = live
 
+    # print("range", transition['range'])
+    if transition['range'] == '':
+        transition['range'] = f"{get_handicap(odds_data[0][2]) * -1}"
+        
     transition['diff'] += transition['movement']
     # print(transition)
     opening = f"{round(1 + float(odds_data[0][1]), 2)}"
