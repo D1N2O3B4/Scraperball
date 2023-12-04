@@ -21,7 +21,7 @@ import traceback
 # custom Libraries
 # from details import getMatchDetails
 from generator import generate
-from utils import scroll_to, resource_path, get_cols
+from utils import scroll_to, resource_path, get_cols, filter_rows
 
 from bs_scraper import get_data
 from match_odds import get_match_odds
@@ -34,7 +34,7 @@ DRIVER_PATH = resource_path('geckodriver')
 service = Service(DRIVER_PATH, log_output="myapp.log")
 firefox_options = Options()
 firefox_options.set_preference("media.volume_scale", "0.0")
-# firefox_options.add_argument('--headless')
+firefox_options.add_argument('--headless')
 driver = webdriver.Firefox(firefox_options, service=service)
 driver.maximize_window()
 # driver.implicitly_wait(5)
@@ -49,7 +49,8 @@ stats = get_cols()
 
 def append_to_stats(data):
     for key in stats.keys():
-        stats[key].append(data[str(key).lower()])
+        if key in data.keys():
+            stats[key].append(data[str(key)])
     
 count = 0
 def configure_matches():
@@ -74,48 +75,6 @@ def configure_matches():
             
             
 configure_matches()
-
-
-
-# delay so everything gets loaded
-# time.sleep(2)
-
-def filter_rows(rows: List[WebElement]) -> list[WebElement]:
-    print('processing matches...')
-    filtered_rows = []
-    with Progress(transient=True) as progress:
-        task = progress.add_task("", total=len(rows))
-
-        for row in rows:
-            progress.update(task, advance=1)
-
-            if len(filtered_rows) >= 10:
-                break
-                pass
-            try:
-                if not row.is_displayed():
-                    continue
-                
-                
-                row_id = row.get_attribute('id')
-                if "tr1" not in row_id:
-                    continue
-
-                if row.find_element(By.CSS_SELECTOR, "td").get_attribute("class") == "text-info":
-                    continue
-
-                
-                row_class = row.get_attribute('class')
-                if row_class == "scoretitle" or row_class == "notice":
-                    continue
-            except Exception as e:
-                # print(e)
-                pass
-
-            
-            filtered_rows.append(row)
-    print('matches processed')
-    return filtered_rows
 
 # get table with matches in rows
 # explicitly wait for the table to load
@@ -178,6 +137,8 @@ with Progress(transient=True) as progress:
 
             # get list of tabs opened by the driver
             windows = driver.window_handles
+            match_data = None
+            match_odds = None
 
             # loop through each window and switch to the most recently opened tab (match details tab)
             for window in windows:
@@ -186,15 +147,16 @@ with Progress(transient=True) as progress:
                         driver.switch_to.window(window)
 
                         print(f"{j + 1} / {len(rows)}")
+                        print(f"{home_name} vs {away_name}")
                         # get match details
 
-                        # match_data = get_data(driver, home_name, away_name, league_title)
+                        match_data = get_data(driver, home_name, away_name, league_title)
                         # append_to_stats(match_data)
 
                     except Exception as e:
                         print('match skipped!!! - contact support team')
-                        # print(e)
-                        # traceback.print_stack()
+                        print(e)
+                        traceback.print_stack()
                         pass
 
                     # close match details tab and switch driver back to home page
@@ -223,12 +185,15 @@ with Progress(transient=True) as progress:
                         # get match details
 
                         match_odds = get_match_odds(driver)
-                        # append_to_stats(match_data)
+                        # print(match_odds)
+                        if match_odds is not None and match_data is not None:
+                            append_to_stats(match_data)
+                            append_to_stats(match_odds)
 
                     except Exception as e:
                         print('match skipped!!! - contact support team')
-                        # print(e)
-                        # traceback.print_stack()
+                        print(e)
+                        traceback.print_stack()
                         pass
 
                     # close match details tab and switch driver back to home page
@@ -260,12 +225,13 @@ print(f'total runtime = {end - start} seconds')
 
 try:
     df = pd.DataFrame(stats)
-    # print(df)
+    print(df)
     # place collected info into excel sheet provided
     generate(df)
 
 except Exception as e:
-    # print(e)
+    print(e)
+    traceback.print_stack()
     pass
 
 # Stop program

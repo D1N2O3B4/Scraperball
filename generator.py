@@ -22,7 +22,7 @@ def generate(df : DataFrame):
         # print(e)
         pass
     
-    df.sort_values(by='league', inplace=True)
+    df.sort_values(by='League', inplace=True)
     # print(df)
     
     leagues = {
@@ -33,8 +33,8 @@ def generate(df : DataFrame):
     
     for row in rows:
         row = row[1]
-        home = row['home']
-        away = row['away']
+        home = row['Home']
+        away = row['Away']
         
         league_match = {
             'teams': '',
@@ -70,35 +70,40 @@ def generate(df : DataFrame):
             'O-O':'',
             'L-O':'',
             'Diff':'',
-            'Hand':'',
+            'Hand2':'',
             'HT Odds':'',
             'TGO':'',
             'LO2':'',
-            'Diff':'',
-            'TG':'',        
+            'Diff2':'',
+            'TG':'',
+            'TG-HT': '',
+            'TG-2H': ''      
         }
         
         for key in row.keys():
-            if key == 'league': continue
-            if key == 'home' or key == 'away':
-                league_match['teams'] = f'{row["home"]} vs {row["away"]}'
+            if key == 'League': continue
+            if key == 'Home' or key == 'Away':
+                league_match['teams'] = f'{row["Home"]} vs {row["Away"]}'
                 continue
-            
+            # if key == "Hand2" or key == "Diff2" or key == "TG-HT" or key == "TG-2H": continue
             league_match[key] = row[key]
-            
-        if row['league'] not in leagues:
-            leagues[f'{row["league"]}'] = []
+        print(row)
+        if row['League'] not in leagues:
+            leagues[f'{row["League"]}'] = []
     
-        leagues[f'{row["league"]}'].append(league_match)
+        leagues[f'{row["League"]}'].append(league_match)
     
     wb = xl.load_workbook(resource_path('Myfile-decrypted.xlsx'))
     ws = wb.active
     
     headers = ws['A2' : 'AM2'][0]
     headers = [x.value for x in headers]
+    print(headers)
     current = 2
     start = None
     for key in leagues.keys():
+
+        # if key == "Hand2" or key == "Diff2" or key == "TG-HT" or key == "TG-2H": continue
         
         if start is not None:
             ws.row_dimensions.group(start, current - 1, hidden=False)
