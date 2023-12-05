@@ -60,7 +60,8 @@ def get_cols():
         "TG": [],
         "TG-HT": [],
         "TG-2H": [],
-        "BF" : []
+        "BF" : [],
+        "Res": []
     }
 
 
@@ -102,7 +103,7 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
             progress.update(task, advance=1)
 
             if len(filtered_rows) >= 10:
-                # break
+                break
                 pass
             try:
                 if not row.is_displayed():

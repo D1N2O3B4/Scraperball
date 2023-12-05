@@ -123,12 +123,22 @@ def generate(df : DataFrame):
                     ws.cell(row=current, column=1).value = match['teams']
                     continue
                 
+
                 col = headers.index(prop) + 1
                 
                 cell = ws.cell(row=current, column=col)
 
                 val = match[prop]
                 cell.alignment = Alignment(horizontal='center', vertical="center")
+
+                if prop == "Res":
+                    if match[prop] == 'SHW' or match[prop] == "MHW":
+                        cell.fill = PatternFill("solid", fgColor="56B0F0")
+                    elif match[prop] == 'SAW' or match[prop] == "MAW":
+                        cell.fill = PatternFill("solid", fgColor="FF0000")
+                    else:
+                        cell.fill = PatternFill("solid", fgColor="A6A6A6")
+                    continue
 
                 if prop == "H" or prop == "A":
                     if val == 'W':
@@ -174,8 +184,6 @@ def generate(df : DataFrame):
                     cell.fill = PatternFill("solid", fgColor="56B0F0")
                     continue
 
-                if prop == "Res":
-                    continue
                 
                 if prop == "BF":
                     bf = val
@@ -196,17 +204,17 @@ def generate(df : DataFrame):
                     continue
                 
                 if prop == "Hand":
-                    if val == 0 or val == "0" or int(float(val)) == 0:
+                    if float(val) == 0.0 or float(val) == -0.0:
                         cell.value = 'L'
                         continue
-                    if float(val) < 0:
-                        cell.fill = PatternFill("solid", fgColor="FF0000")
+                    # if float(val) < 0:
+                        # cell.fill = PatternFill("solid", fgColor="FF0000")
                     elif float(val) > 0:
-                        cell.fill = PatternFill("solid", fgColor="f1c232")
+                        cell.fill = PatternFill("solid", fgColor="55AFE9")
                     
                 if prop == "O-O" or prop == "L-O" or prop == "TGO" or prop == "LO2":
                     if float(val) < 1.95:
-                        cell.fill = PatternFill("solid", fgColor="f1c232")
+                        cell.fill = PatternFill("solid", fgColor="55AFE9")
                     else:
                         cell.fill = PatternFill("solid", fgColor="FF0000")
                 

@@ -29,16 +29,23 @@ def get_match_odds(driver: WebDriver):
         try:
             driver.find_element(By.CSS_SELECTOR, "#winHTBtn").click()
             WebDriverWait(driver, 10).until(EC.staleness_of(driver.find_element(By.CSS_SELECTOR, ".popinfo #detailtable table tbody:last-child")))
-            el = driver.find_element(By.CSS_SELECTOR, ".popinfo #detailtable table tbody:last-child")
-            ou_ht = bs(el.get_attribute('innerHTML'), 'lxml')
+            # el = driver.find_element(By.CSS_SELECTOR, ".popinfo #detailtable table tbody:last-child")
+            el = driver.page_source
+            el_soup = bs(el, 'lxml')
+            odds_table_ = el_soup.select('.popinfo #detailtable table tbody')
+            # ou_ht = bs(el.get_attribute('innerHTML'), 'lxml')
+            ou_ht = odds_table_[2]
             ou_ht_live = extract_live(ou_ht)
             # print("half-time", ou_ht_live)
             if len(ou_ht_live) > 0:
+                # print("half-time", ou_ht_live)
                 goal_odds = ou_ht_live[0][1]
                 goal_hand = ou_ht_live[0][2]
                 goal_odds_to_2 = f"{round(1 + float(goal_odds), 2)}"
                 
-                cols['TG-HT'] = f"{get_handicap(goal_hand) * -1} {goal_odds_to_2}"
+                val = f"{get_handicap(goal_hand)} {goal_odds_to_2}"
+                # print(val)
+                cols['TG-HT'] = val
         except Exception as e:
             # print(e)
             pass
@@ -52,7 +59,7 @@ def get_match_odds(driver: WebDriver):
                 ah_live)
         if len(ou_live) > 0:
             cols['TGO'], cols['LO2'], cols['Diff2'], cols['TG'], dummy = get_live_odds(
-                ou_live)
+                ou_live, True)
             
         return cols
     

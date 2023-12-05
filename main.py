@@ -234,6 +234,17 @@ with Progress(transient=True) as progress:
                             
                             stats['BF'].append(bf)
                             
+                            if for_ > 89:
+                                stats['Res'].append('SHW')
+                            elif for_ > 49:
+                                stats['Res'].append('MHW')
+                            elif for_ > 19:
+                                stats['Res'].append('D')
+                            elif for_ > -14:
+                                stats['Res'].append('MAW')
+                            else:
+                                stats['Res'].append('SAW')
+                            
                             
 
                     except Exception as e:
