@@ -33,14 +33,14 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
         home = soup.select_one("#fbheader .home .sclassName").get_text()
         away = soup.select_one("#fbheader .guest .sclassName").get_text()
     except Exception as e:
-        print(e)
+        # print(e)
         pass
 
-    vals['home'] = home
-    vals['away'] = away
-    vals['league'] = league
+    vals['Home'] = home
+    vals['Away'] = away
+    vals['League'] = league
 
-    print(f'{home} vs {away}')
+    # print(f'{home} vs {away}')
 
     home_rows = get_table_rows(soup, '#table_v1 > tbody > tr', league, 1)
     home_team_form = get_last_goals(
@@ -51,33 +51,33 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
         away_rows, team=away, num=2, home_team_match=False, is_team_form=True)
 
     team_form = calculate_team_form(home_team_form, away_team_form)
-    vals['fm'] = team_form
+    vals['FM'] = team_form
 
     home_scores = get_last_goals(
         home_rows, team=home, num=1, home_team_match=True)
     if len(home_scores) > 0:
-        vals['hf'] = calculate_points(
+        vals['HF'] = calculate_points(
             home_scores[:5], home_team_match=True)/(min(5, len(home_scores)) * 3)
-        vals['3h'] = calculate_points(
+        vals['3H'] = calculate_points(
             home_scores[:3], home_team_match=True)/(min(3, len(home_scores)) * 3)
-        vals['h'] = 'W' if int(home_scores[0].split('-')[0]) > int(home_scores[0].split('-')[1]) else 'D' if int(home_scores[0].split(
+        vals['H'] = 'W' if int(home_scores[0].split('-')[0]) > int(home_scores[0].split('-')[1]) else 'D' if int(home_scores[0].split(
             '-')[0]) == int(home_scores[0].split('-')[1]) else 'L'
-        vals['5h'] = get_goals(home_scores[:5], home_team_match=True)
-        vals['l3h'] = get_goals(home_scores[:3], home_team_match=True)
-        vals['h%'] = get_percentage(home_scores[:5], home_team_match=True)
+        vals['5H'] = get_goals(home_scores[:5], home_team_match=True)
+        vals['L3H'] = get_goals(home_scores[:3], home_team_match=True)
+        vals['H%'] = get_percentage(home_scores[:5], home_team_match=True)
 
     away_scores = get_last_goals(
         away_rows, team=away, num=2, home_team_match=False)
     if len(away_scores) > 0:
-        vals['af'] = calculate_points(
+        vals['AF'] = calculate_points(
             away_scores[:5], home_team_match=False)/(min(5, len(away_scores)) * 3)
-        vals['3w'] = calculate_points(
+        vals['3W'] = calculate_points(
             away_scores[:3], home_team_match=False)/(min(3, len(away_scores)) * 3)
-        vals['a'] = 'W' if int(away_scores[0].split('-')[0]) < int(away_scores[0].split('-')[1]) else 'D' if int(away_scores[0].split(
+        vals['A'] = 'W' if int(away_scores[0].split('-')[0]) < int(away_scores[0].split('-')[1]) else 'D' if int(away_scores[0].split(
             '-')[0]) == int(away_scores[0].split('-')[1]) else 'L'
-        vals['5a'] = get_goals(away_scores[:5], home_team_match=False)
-        vals['l3a'] = get_goals(away_scores[:3], home_team_match=False)
-        vals['a%'] = get_percentage(away_scores[:5], home_team_match=False)
+        vals['5A'] = get_goals(away_scores[:5], home_team_match=False)
+        vals['L3A'] = get_goals(away_scores[:3], home_team_match=False)
+        vals['A%'] = get_percentage(away_scores[:5], home_team_match=False)
 
     if len(home_scores) > 0 and len(away_scores) > 0:
         min_len = min(len(home_scores), len(away_scores), 3)
@@ -86,22 +86,22 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
             home_scores[:min_len], home_team_match=True, gd=True)
         away_goals = get_goals(
             away_scores[:min_len], home_team_match=False, gd=True)
-        vals['gd'] = home_goals - away_goals
+        vals['GD'] = home_goals - away_goals
 
     h2h_rows = get_table_rows(soup, '#table_v3 > tbody > tr', league, 3)
     h2h_home_scores, h2h_away_scores = get_last_goals(
         h2h_rows, home, 3, True, is_team_form=False, is_h2h=True)
 
     if len(h2h_home_scores) > 0:
-        vals['hh'] = calculate_points(
+        vals['HH'] = calculate_points(
             h2h_home_scores, home_team_match=True)/(min(5, len(h2h_home_scores)) * 3)
-        vals['h2h'] = calculate_points(
+        vals['H2H'] = calculate_points(
             h2h_home_scores[:1], home_team_match=True)/3
 
     if len(h2h_away_scores) > 0:
-        vals['ha'] = calculate_points(
+        vals['HA'] = calculate_points(
             h2h_away_scores, home_team_match=False)/(min(5, len(h2h_away_scores)) * 3)
-        vals['h2a'] = calculate_points(
+        vals['H2A'] = calculate_points(
             h2h_away_scores[:1], home_team_match=False)/3
     try:
         home_rank = soup.select_one(
@@ -117,7 +117,7 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
             ".guest-div tbody > tr:nth-child(5n) > td:nth-child(2n)").get_text()
         away_points = soup.select_one(
             ".guest-div tbody > tr:nth-child(5n) > td:nth-child(8n)").get_text()
-    except:
+    except Exception as e:
         home_rank = ''
         num_home_matches = ''
         home_points = ''
@@ -165,8 +165,8 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
             return
         try:
             if rank:
-                vals['lh'] = int(cup_standings[home]['rank'])
-                vals['la'] = int(cup_standings[away]['rank'])
+                vals['LH'] = int(cup_standings[home]['rank'])
+                vals['LA'] = int(cup_standings[away]['rank'])
         except Exception as e:
             # print(e)
             pass
@@ -176,9 +176,9 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
                 home_matches = int(cup_standings[home]['matches'])
                 away_matches = int(cup_standings[away]['matches'])
                 if home_matches >= 5 and away_matches >= 5:
-                    vals['hf'] = int(cup_standings[home]['points']) / \
+                    vals['HF'] = int(cup_standings[home]['points']) / \
                         (int(cup_standings[home]['matches']) * 3)
-                    vals['af'] = int(cup_standings[away]['points']) / \
+                    vals['AF'] = int(cup_standings[away]['points']) / \
                         (int(cup_standings[away]['matches']) * 3)
         except Exception as e:
             # print(e)
@@ -186,11 +186,11 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
 
     if home_rank != '' and away_rank != '' and home_rank.isdigit() and away_rank.isdigit():
         try:
-            vals['lh'] = int(home_rank)
-            vals['la'] = int(away_rank)
+            vals['LH'] = int(home_rank)
+            vals['LA'] = int(away_rank)
         except:
-            vals['lh'] = 0
-            vals['la'] = 0
+            vals['LH'] = 0
+            vals['LA'] = 0
             use_cup_standings(rank=True)
             # update this to include cup standings/groups
 
@@ -204,8 +204,8 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
                 use_table = False
 
         if use_table:
-            vals['hf'] = int(home_points) / (int(num_home_matches) * 3)
-            vals['af'] = int(away_points) / (int(num_away_matches) * 3)
+            vals['HF'] = int(home_points) / (int(num_home_matches) * 3)
+            vals['AF'] = int(away_points) / (int(num_away_matches) * 3)
             pass
         # else:
             # vals['hf'] = calculate_points(home_scores[:5], home_team_match=True)/(min(5, len(home_scores)) * 3)
@@ -214,7 +214,7 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
         use_cup_standings(rank=True, matches=True)
 
     # if ranks are empty use cup_standings
-    if vals['lh'] == 0 or vals['la'] == 0:
+    if vals['LH'] == 0 or vals['LA'] == 0:
         use_cup_standings(rank=True)
 
     return vals
