@@ -7,6 +7,33 @@ from bs4.element import ResultSet, Tag
 
 from utils import scroll_to
 
+def data_blueprint():
+    return {
+        "Home": "",
+        "Away": "",
+        "League": "",
+        'HF': '',
+        'LH': '',
+        'AF': '',
+        'LA': '',
+        '3H': '',
+        '3W': '',
+        'H': '',
+        'A': '',
+        'HH': '',
+        'HA': '',
+        'H2H': '',
+        'H2A': '',
+        'FM': '',
+        '5H': ['', 0],
+        '5A': ['', 0],
+        'L3H': ['', 0],
+        'L3A': ['', 0],
+        'H%': '',
+        'A%': '',
+        'GD': ''
+    }
+
 def joinString(string: str):
     return ''.join(string.split())
 

@@ -8,8 +8,7 @@ from selenium.webdriver.common.by import By
 
 import traceback
 
-from utils import data_blueprint
-from bs_scraper_utils import joinString, prepare, get_percentage, get_goals, calculate_points, calculate_team_form, get_last_goals, get_table_rows
+from bs_scraper_utils import data_blueprint, joinString, prepare, get_percentage, get_goals, calculate_points, calculate_team_form, get_last_goals, get_table_rows
 
 
 def get_data(driver: WebDriver, home: str, away: str, league: str):
@@ -43,6 +42,7 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
     # print(f'{home} vs {away}')
 
     home_rows = get_table_rows(soup, '#table_v1 > tbody > tr', league, 1)
+    # if len(home_rows) == 0:
     home_team_form = get_last_goals(
         home_rows, team=home, num=1, home_team_match=False, is_team_form=True)
 
@@ -51,7 +51,10 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
         away_rows, team=away, num=2, home_team_match=False, is_team_form=True)
 
     team_form = calculate_team_form(home_team_form, away_team_form)
-    vals['FM'] = team_form
+    if len(home_rows) > 0 and len(away_rows) > 0:
+        vals['FM'] = team_form
+    
+    
 
     home_scores = get_last_goals(
         home_rows, team=home, num=1, home_team_match=True)
@@ -103,6 +106,7 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
             h2h_away_scores, home_team_match=False)/(min(5, len(h2h_away_scores)) * 3)
         vals['H2A'] = calculate_points(
             h2h_away_scores[:1], home_team_match=False)/3
+
     try:
         home_rank = soup.select_one(
             ".home-div tbody > tr:nth-child(3n) > td:nth-child(9n)").get_text()
@@ -189,8 +193,8 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
             vals['LH'] = int(home_rank)
             vals['LA'] = int(away_rank)
         except:
-            vals['LH'] = 0
-            vals['LA'] = 0
+            vals['LH'] = ''
+            vals['LA'] = ''
             use_cup_standings(rank=True)
             # update this to include cup standings/groups
 
@@ -214,7 +218,7 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
         use_cup_standings(rank=True, matches=True)
 
     # if ranks are empty use cup_standings
-    if vals['LH'] == 0 or vals['LA'] == 0:
+    if vals['LH'] == '' or vals['LA'] == '':
         use_cup_standings(rank=True)
 
     return vals

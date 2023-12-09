@@ -8,18 +8,18 @@ from selenium.webdriver.common.by import By
 
 def get_cols():
     return {
-        'Hand': 0,
-        'O-O': 0,
-        'L-O': 0,
-        'Diff': 0,
-        "Hand2": 0,
-        'HT Odds': 0,
-        'TGO': 0,
-        'LO2': 0,
-        'Diff2': 0,
-        'TG': 0,
-        'TG-HT': 0,
-        'TG-2H': 0
+        'Hand': '',
+        'O-O': '',
+        'L-O': '',
+        'Diff': '',
+        "Hand2": '',
+        'HT Odds': '',
+        'TGO': '',
+        'LO2': '',
+        'Diff2': '',
+        'TG': '',
+        'TG-HT': "",
+        'TG-2H': ''
     }
 
 

@@ -131,6 +131,10 @@ def generate(df : DataFrame):
                 val = match[prop]
                 cell.alignment = Alignment(horizontal='center', vertical="center")
 
+                if val == '' and not (prop == "Stat" or prop == "For" or prop == "Bet"):
+                    cell.value = val
+                    continue
+                
                 if prop == "Res":
                     if match[prop] == 'SHW' or match[prop] == "MHW":
                         cell.fill = PatternFill("solid", fgColor="56B0F0")
@@ -187,7 +191,7 @@ def generate(df : DataFrame):
                 
                 if prop == "BF":
                     bf = val
-                    bf_val = (bf[0]/bf[1]) * 100
+                    bf_val = int((bf[0]/bf[1]) * 100)
                     if bf_val >= 80:
                         cell.fill = PatternFill("solid", fgColor="56B0F0")
                     elif bf_val >= 40:
@@ -202,6 +206,13 @@ def generate(df : DataFrame):
                     #     bf[0] += 1
                     cell.value = bf_val
                     continue
+                
+                if prop == "Bet":
+                    if val == "H10":
+                        cell.fill = PatternFill("solid", fgColor="000000")
+                    elif val == "A10":
+                        cell.fill = PatternFill("solid", fgColor="000000")
+                    
                 
                 if prop == "Hand":
                     if float(val) == 0.0 or float(val) == -0.0:
@@ -223,6 +234,19 @@ def generate(df : DataFrame):
                         cell.fill = PatternFill("solid", fgColor="FF0000")
                     else:
                         cell.fill = PatternFill("solid", fgColor="56B0F0")
+                
+                if prop == "TG-HT":
+                    # print(val, type(val))
+                    val_split = val.split(' ')
+                    if len(val_split) == 2: 
+                        goals, odds = val_split
+                        if float(goals) >= 1:
+                            cell.fill = PatternFill("solid", fgColor="000000")
+                            if float(odds) < 1.95:
+                                cell.fill = PatternFill("solid", fgColor="FF8000")
+                            else:
+                                cell.fill = PatternFill("solid", fgColor="FF0000")
+                        pass    
 
                 cell.value = match[prop]
 
