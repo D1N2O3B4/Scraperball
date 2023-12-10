@@ -102,7 +102,7 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
 
     for row in rows:
         # progress.update(task, advance=1)
-        if len(filtered_rows) >= 50:
+        if len(filtered_rows) >= 100:
             # break
             pass
         try:
@@ -156,7 +156,7 @@ def get_for(match_data):
     else:
         at = 0
         
-    if match_data['FM'] == '':
+    if match_data['FM'] != '':
         au = (match_data["FM"] * 2)
     else:
         au = 0
@@ -182,64 +182,69 @@ def append_to_stats(stats, data):
     return stats
 
 def append_all(stats, match_data, match_odds):
-    stats = append_to_stats(stats, match_data)
-    stats = append_to_stats(stats, match_odds)
-    opening_odds = match_odds['O-O']
-    odds_movement = match_odds['Diff']
-    h2h = match_data['H2H']
-    l3h = match_data['L3H'][0]
-    l3a = match_data['L3A'][0]
-    bf = [0, 5]
+    try:
+        stats_copy = append_to_stats(stats, match_data)
+        stats_copy = append_to_stats(stats, match_odds)
+        opening_odds = match_odds['O-O']
+        odds_movement = match_odds['Diff']
+        h2h = match_data['H2H']
+        l3h = match_data['L3H'][0]
+        l3a = match_data['L3A'][0]
+        bf = [0, 5]
 
-    if opening_odds != '':
-        if float(opening_odds) < 1.95:
+        if opening_odds != '':
+            if float(opening_odds) < 1.95:
+                bf[0] += 1
+        else:
+            bf[1] -= 1
+
+        if odds_movement != '':
+            if int(odds_movement) >= 0:
+                bf[0] += 1
+        else: 
+            bf[1] -= 1
+
+        if h2h != '':
+            if h2h > 0.67:
+                bf[0] += 1
+        else:
+            bf[1] -= 1
+
+        if not (l3h == '' or l3a == ''):
+            if (l3h - l3a) > 0:
+                bf[0] += 1
+        else:
+            bf[1] -= 1
+
+        for_ = get_for(match_data)
+
+        if for_ >= 50:
             bf[0] += 1
-    else:
-        bf[1] -= 1
-
-    if odds_movement != '':
-        if int(odds_movement) >= 0:
-            bf[0] += 1
-    else: 
-        bf[1] -= 1
-
-    if h2h != '':
-        if h2h > 0.67:
-            bf[0] += 1
-    else:
-        bf[1] -= 1
-
-    if not (l3h == '' or l3a == ''):
-        if (l3h - l3a) > 0:
-            bf[0] += 1
-    else:
-        bf[1] -= 1
-
-    for_ = get_for(match_data)
-
-    if for_ >= 50:
-        bf[0] += 1
 
 
-    stats['BF'].append(bf)
+        stats['BF'].append(bf)
 
-    banker_bet = (bf[0]/bf[1]) * 100
-    if banker_bet == 100:
-        stats["Bet"].append("H10")
-    elif banker_bet == 0:
-        stats["Bet"].append("A10")
-    else:
-        stats["Bet"].append("")
+        banker_bet = int((bf[0]/bf[1]) * 100)
+        if banker_bet == 100:
+            stats["Bet"].append("H10")
+        elif banker_bet == 0:
+            stats["Bet"].append("A10")
+        else:
+            stats["Bet"].append("")
 
 
-    if for_ > 89:
-        stats['Res'].append('SHW')
-    elif for_ > 49:
-        stats['Res'].append('MHW')
-    elif for_ > 19:
-        stats['Res'].append('D')
-    elif for_ > -14:
-        stats['Res'].append('MAW')
-    else:
-        stats['Res'].append('SAW')
-    return stats
+        if for_ > 89:
+            stats['Res'].append('SHW')
+        elif for_ > 49:
+            stats['Res'].append('MHW')
+        elif for_ > 19:
+            stats['Res'].append('D')
+        elif for_ > -14:
+            stats['Res'].append('MAW')
+        else:
+            stats['Res'].append('SAW')
+        return stats_copy
+    except Exception as e:
+        print('unable to append data...continuing...')
+        # print(e)
+        return stats

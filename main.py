@@ -46,6 +46,7 @@ def configure_matches():
         else:
             print('something went wrong, retrying...')
             driver.quit()
+            exit()
             
             
 configure_matches()
@@ -143,12 +144,14 @@ with Progress(transient=True) as progress:
                         driver.switch_to.window(parent_window)
                                    
             try:
-                if not (match_data is None or match_odds is None):
-                    stats = append_all(stats, match_data, match_odds)
+                if match_data is None or match_odds is None: 
+                    j += 1
+                    continue
+                stats = append_all(stats, match_data, match_odds)
                     
             except Exception as e:
-                # print('append')
-                # print(e)
+                print('append')
+                print(e)
                 pass
 
             
@@ -156,7 +159,7 @@ with Progress(transient=True) as progress:
             j += 1
 
         except StaleElementReferenceException as e:
-            # print(e.msg)
+            # print(e)
             driver.refresh()
             time.sleep(5)
             configure_matches()
@@ -166,9 +169,9 @@ with Progress(transient=True) as progress:
 
 
         except Exception as e:
-            # print(e)
             # print("encountered an error....app will now exit")
             print('Match skipped!!! - contact support team')
+            # print(e)
             # driver.quit()
             # exit()
 
@@ -180,8 +183,8 @@ end = time.time()
 print(f'total runtime = {end - start} seconds')
 
 # print the length of all the values in stats with their keys
-# for key in stats.keys():
-    # print(f'{key} = {len(stats[key])}')
+for key in stats.keys():
+    print(f'{key} = {len(stats[key])}')
 
 try:
     df = pd.DataFrame(stats)
