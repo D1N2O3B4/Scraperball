@@ -151,7 +151,7 @@ with Progress(transient=True) as progress:
                     
             except Exception as e:
                 print('append')
-                print(e)
+                # print(e)
                 pass
 
             
@@ -183,8 +183,9 @@ end = time.time()
 print(f'total runtime = {end - start} seconds')
 
 # print the length of all the values in stats with their keys
-for key in stats.keys():
-    print(f'{key} = {len(stats[key])}')
+# for key in stats.keys():
+    # print(f'{key} = {len(stats[key])}')
+    # pass
 
 try:
     df = pd.DataFrame(stats)

@@ -48,6 +48,14 @@ def resource_path(file):
     data_dir = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(data_dir, file)
 
+def to_2_dec(num):
+    num = f"{round(float(num), 2)}"
+    dec = num.split('.')[1]
+    length = len(dec)
+    if length >= 2:
+        return num
+    return num + "0"
+
 
 def get_cols():
     return {
@@ -102,7 +110,7 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
 
     for row in rows:
         # progress.update(task, advance=1)
-        if len(filtered_rows) >= 100:
+        if len(filtered_rows) >= 10:
             # break
             pass
         try:
@@ -128,15 +136,24 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
     return filtered_rows
 
 
+
+def append_to_stats(stats, data):
+    for key in stats.keys():
+        if key in data.keys():
+            stats[key].append(data[str(key)])
+    return stats
+
+
+
 def get_for(match_data):
     if match_data['HF'] != '' and match_data['AF'] != '':
-        an = (match_data['HF']*40) - (match_data['AF']*40)
+        an = match_data['HF']*(40) - match_data['AF']*(40)
     else:
         an = 0
     ao = 1 if an > 0.01 else 0
 
     if match_data['3H'] != '' and match_data['3W'] != '':
-        ap = (match_data['3H']*50) - (match_data['3W']*50)
+        ap = match_data['3H']*50 - match_data['3W']*50
     else:
         ap = 0
     aq = 1 if ap > 0.01 else 0
@@ -146,18 +163,18 @@ def get_for(match_data):
     else:
         ar = 0
     
-    if match_data['H2H'] != '':
-        as_ = 1 if match_data["H2H"] > 0.34 else 0
+    if match_data['H2H'][0] != '':
+        as_ = 1 if match_data["H2H"][0] > 0.34 else 0
     else:
         as_ = 0
 
-    if match_data['HH'] != '' and match_data['HA'] != '' and match_data['H2H'] != '' and match_data['H2A'] != '':
-        at = (match_data["HH"]*20) + (match_data["HA"]*10) + (match_data["H2H"] *30) + (match_data["H2A"] *10)
+    if match_data['HH'] != '' and match_data['HA'] != '' and match_data['H2H'][0] != '' and match_data['H2A'] != '':
+        at = (match_data["HH"]*20 + match_data["HA"]*10 + match_data["H2H"][0] *30 + match_data["H2A"] *10)
     else:
         at = 0
         
     if match_data['FM'] != '':
-        au = (match_data["FM"] * 2)
+        au = match_data["FM"] * 2
     else:
         au = 0
     av = 1 if au > 0.01 else 0
@@ -175,11 +192,6 @@ def get_for(match_data):
     for_ = an + ap + at + au + aw + ay
     return for_
 
-def append_to_stats(stats, data):
-    for key in stats.keys():
-        if key in data.keys():
-            stats[key].append(data[str(key)])
-    return stats
 
 def append_all(stats, match_data, match_odds):
     try:
@@ -190,6 +202,7 @@ def append_all(stats, match_data, match_odds):
         h2h = match_data['H2H']
         l3h = match_data['L3H'][0]
         l3a = match_data['L3A'][0]
+        hand = match_odds['Hand']
         bf = [0, 5]
 
         if opening_odds != '':
@@ -204,15 +217,35 @@ def append_all(stats, match_data, match_odds):
         else: 
             bf[1] -= 1
 
-        if h2h != '':
-            if h2h > 0.67:
-                bf[0] += 1
+        if h2h[0] != '':
+            # print(h2h)
+            point = h2h[0]
+            score = h2h[1]
+            diff = score[0] - score[1]
+            if hand != '':
+                hand = float(hand)
+                if hand <= 0:
+                    if diff >= abs(hand):
+                         bf[0] += 1
+                else:
+                    if abs(diff) <= abs(hand):
+                        bf[0] += 1
+            else:
+                if diff >= 0:
+                    bf[0] += 1
+           
         else:
             bf[1] -= 1
 
-        if not (l3h == '' or l3a == ''):
-            if (l3h - l3a) > 0:
-                bf[0] += 1
+        if l3h != '' and l3a != '':
+            if not (hand == ''):
+                hand = float(hand)
+                if hand <= 0:
+                    if round(l3h - l3a) >= abs(hand):
+                        bf[0] += 1
+            else:
+                if l3h - l3a >= 0:
+                    bf[0] += 1
         else:
             bf[1] -= 1
 
@@ -222,27 +255,28 @@ def append_all(stats, match_data, match_odds):
             bf[0] += 1
 
 
-        stats['BF'].append(bf)
+        stats_copy['BF'].append(bf)
 
         banker_bet = int((bf[0]/bf[1]) * 100)
+        # stats_copy['Bet'].append(for_)
         if banker_bet == 100:
-            stats["Bet"].append("H10")
+            stats_copy["Bet"].append("H10")
         elif banker_bet == 0:
-            stats["Bet"].append("A10")
+            stats_copy["Bet"].append("A10")
         else:
-            stats["Bet"].append("")
+            stats_copy["Bet"].append("")
 
 
         if for_ > 89:
-            stats['Res'].append('SHW')
+            stats_copy['Res'].append('SHW')
         elif for_ > 49:
-            stats['Res'].append('MHW')
+            stats_copy['Res'].append('MHW')
         elif for_ > 19:
-            stats['Res'].append('D')
+            stats_copy['Res'].append('D')
         elif for_ > -14:
-            stats['Res'].append('MAW')
+            stats_copy['Res'].append('MAW')
         else:
-            stats['Res'].append('SAW')
+            stats_copy['Res'].append('SAW')
         return stats_copy
     except Exception as e:
         print('unable to append data...continuing...')

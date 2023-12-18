@@ -22,3 +22,49 @@ def copy_range(range_str, sheet, offset):
                 dst_cell.fill = copy(src_cell.fill)
 
                 dst_cell.number_format = src_cell.number_format
+
+
+def get_league_match():
+    return {
+            'teams': '',
+            'HF' : '',
+            'AF' : '',
+            '3H': '',
+            '3W':'',
+            'H':'',
+            'A':'',
+            'HH': '',
+            'HA':'',
+            'H2H':'',
+            'H2A':'',
+            'FM':'',
+            'GD':'',
+            'LH':'',
+            'LA':'',
+            'Hand': '',
+            'H%': '',
+            'A%':'',
+            '5H': '',
+            '5A':'',
+            'L3H':'',
+            'L3A':'',
+            'Stat':'',
+            'For':'',
+            'Res':'',
+            'BF':'',
+            'Bet':'',
+            'RES':'',
+            'SH':'',
+            'SA':'',
+            'O-O':'',
+            'L-O':'',
+            'Diff':'',
+            'Hand2':'',
+            'HT Odds':'',
+            'TGO':'',
+            'LO2':'',
+            'Diff2':'',
+            'TG':'',
+            'TG-HT': '',
+            'TG-2H': ''      
+        }

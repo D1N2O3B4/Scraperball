@@ -114,10 +114,10 @@ def get_live_odds(odds_data: list, tg=False):
 
             prev_handicap = get_handicap(transition['odds'][-1][2])
             live_handicap = get_handicap(live[2])
-            if prev_handicap > live_handicap:
-                transition['diff'] += transition['movement'] + 1
-            else:
+            if prev_handicap*-1 > live_handicap*-1:
                 transition['diff'] += transition['movement'] - 1
+            else:
+                transition['diff'] += transition['movement'] + 1
             transition['movement'] = 0
             transition['odds'] = [live]
             start = f"{prev_handicap * -1}"

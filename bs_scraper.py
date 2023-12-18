@@ -98,8 +98,8 @@ def get_data(driver: WebDriver, home: str, away: str, league: str):
     if len(h2h_home_scores) > 0:
         vals['HH'] = calculate_points(
             h2h_home_scores, home_team_match=True)/(min(5, len(h2h_home_scores)) * 3)
-        vals['H2H'] = calculate_points(
-            h2h_home_scores[:1], home_team_match=True)/3
+        vals['H2H'] = [calculate_points(
+            h2h_home_scores[:1], home_team_match=True)/3, [int(x) for x in h2h_home_scores[0].split('-')]]
 
     if len(h2h_away_scores) > 0:
         vals['HA'] = calculate_points(
