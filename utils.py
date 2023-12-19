@@ -111,7 +111,7 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
     for row in rows:
         # progress.update(task, advance=1)
         if len(filtered_rows) >= 20:
-            break
+            # break
             pass
         try:
             if not row.is_displayed():
