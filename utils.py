@@ -193,7 +193,7 @@ def get_for(match_data):
     return for_
 
 
-def append_all(stats, match_data, match_odds):
+def append_all(stats, match_data, match_odds, home_away):
     try:
         stats_copy = append_to_stats(stats, match_data)
         stats_copy = append_to_stats(stats, match_odds)
@@ -222,9 +222,10 @@ def append_all(stats, match_data, match_odds):
             point = h2h[0]
             score = h2h[1]
             diff = score[0] - score[1]
-            if hand != '':
+            if hand != '' and home_away[0] != '' and home_away[1] != '':
                 hand = float(hand)
-                if hand <= 0:
+                # if hand <= 0:
+                if float(home_away[0] <= home_away[1]):
                     if diff >= abs(hand):
                          bf[0] += 1
                 else:
@@ -238,10 +239,14 @@ def append_all(stats, match_data, match_odds):
             bf[1] -= 1
 
         if l3h != '' and l3a != '':
-            if not (hand == ''):
+            if hand != '' and home_away[0] != '' and home_away[1] != '':
                 hand = float(hand)
-                if hand <= 0:
+                # if hand <= 0:
+                if float(home_away[0] <= home_away[1]):
                     if round(l3h - l3a) >= abs(hand):
+                        bf[0] += 1
+                else:
+                    if round(abs(l3h - l3a)) < abs(hand):
                         bf[0] += 1
             else:
                 if l3h - l3a >= 0:

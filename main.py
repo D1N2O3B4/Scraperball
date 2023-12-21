@@ -129,6 +129,7 @@ with Progress(transient=True) as progress:
                             match_data = get_data(driver, home_name, away_name, league_title)
                         if 'odds' in title.lower():
                             match_odds = get_match_odds(driver)
+                            # print(match_odds)
                             pass
 
                     except Exception as e:
@@ -147,7 +148,7 @@ with Progress(transient=True) as progress:
                 if match_data is None or match_odds is None: 
                     j += 1
                     continue
-                stats = append_all(stats, match_data, match_odds)
+                stats = append_all(stats, match_data, match_odds[0], match_odds[1])
                     
             except Exception as e:
                 print('append')

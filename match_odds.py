@@ -60,8 +60,15 @@ def get_match_odds(driver: WebDriver):
         if len(ou_live) > 0:
             cols['TGO'], cols['LO2'], cols['Diff2'], cols['TG'], dummy = get_live_odds(
                 ou_live, True)
+        home_away = ['', '']
+        if len(op_live) > 0:
+            home_away = [op_live[0][1], op_live[0][3]]
             
-        return cols
+            
+        
+        # print(op_live)
+            
+        return [cols, home_away]
     
     except Exception as e:
         # print(e)
