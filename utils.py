@@ -110,7 +110,7 @@ def filter_rows(rows: List[WebElement]) -> list[WebElement]:
 
     for row in rows:
         # progress.update(task, advance=1)
-        if len(filtered_rows) >= 20:
+        if len(filtered_rows) >= 50:
             # break
             pass
         try:
@@ -212,8 +212,10 @@ def append_all(stats, match_data, match_odds, home_away):
             bf[1] -= 1
 
         if odds_movement != '':
-            if int(odds_movement) >= 0:
+            if int(odds_movement) > 0:
                 bf[0] += 1
+            elif int(odds_movement) == 0:
+                bf[1] -= 1
         else: 
             bf[1] -= 1
 
@@ -221,18 +223,30 @@ def append_all(stats, match_data, match_odds, home_away):
             # print(h2h)
             point = h2h[0]
             score = h2h[1]
-            diff = score[0] - score[1]
             if hand != '' and home_away[0] != '' and home_away[1] != '':
-                hand = float(hand)
+                hand = abs(float(hand))
+                hand_str = str(hand).split('.')
+                whole, frac = int(hand_str[0]), 0
+                frac = float(hand_str[1]) if len(hand_str) > 1 else 0
                 # if hand <= 0:
-                if float(home_away[0] <= home_away[1]):
-                    if diff >= abs(hand):
-                         bf[0] += 1
+                if float(home_away[0]) <= float(home_away[1]):
+                    diff = score[0] - score[1]
+                    if point >= 1:
+                        # if hand == 0.75:
+                        if len(hand_str) == 1 or frac == 0.75:
+                            if diff >= round(hand) + 1:
+                                bf[0] += 1
+                        elif diff >= hand:
+                            bf[0] += 1
                 else:
-                    if abs(diff) <= abs(hand):
+                    if point >= 0.3:
                         bf[0] += 1
+                    else:
+                        diff = score[1] - score[0]
+                        if diff <= hand:
+                            bf[0] += 1
             else:
-                if diff >= 0:
+                if point >= 1:
                     bf[0] += 1
            
         else:
@@ -240,16 +254,28 @@ def append_all(stats, match_data, match_odds, home_away):
 
         if l3h != '' and l3a != '':
             if hand != '' and home_away[0] != '' and home_away[1] != '':
-                hand = float(hand)
+                hand = abs(float(hand))
+                hand_str = str(hand).split('.')
+                whole, frac = int(hand_str[0]), 0
+                frac = float(hand_str[1]) if len(hand_str) > 1 else 0
+                
                 # if hand <= 0:
-                if float(home_away[0] <= home_away[1]):
-                    if round(l3h - l3a) >= abs(hand):
+                if float(home_away[0]) <= float(home_away[1]):
+                    diff = round(l3h - l3a)
+                    if len(hand_str) == 1 or frac == 0.75:
+                        if diff >= round(hand) + 1:
+                            bf[0] += 1
+                    if diff >= hand:
                         bf[0] += 1
                 else:
-                    if round(abs(l3h - l3a)) < abs(hand):
+                    if l3h >= l3a:
                         bf[0] += 1
+                    else:
+                        diff = round(l3a - l3h)
+                        if diff < hand:
+                            bf[0] += 1
             else:
-                if l3h - l3a >= 0:
+                if l3h - l3a > 0:
                     bf[0] += 1
         else:
             bf[1] -= 1
@@ -258,6 +284,11 @@ def append_all(stats, match_data, match_odds, home_away):
 
         if for_ >= 50:
             bf[0] += 1
+        elif for_ > 19:
+            if hand != '' and home_away[0] != '' and home_away[1] != '':
+                if float(home_away[0]) > float(home_away[1]):
+                    bf[0] += 1
+            
 
 
         stats_copy['BF'].append(bf)

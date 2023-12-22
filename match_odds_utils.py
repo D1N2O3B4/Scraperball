@@ -74,8 +74,11 @@ def get_handicap(handicap: str):
 
     split = handicap.split('/')
     if len(split) == 1:
+        hand = float(split[0]) * -1
+        if hand == 0:
+            return 0
         if neg:
-            return float(split[0]) * -1
+            return hand 
         return float(split[0])
 
     hand = float(split[0]) + float(split[1])
@@ -120,7 +123,7 @@ def get_live_odds(odds_data: list, tg=False):
                 transition['diff'] += transition['movement'] + 1
             transition['movement'] = 0
             transition['odds'] = [live]
-            start = f"{prev_handicap * -1}"
+            start = f"{get_handicap(odds_data[0][2]) * -1}"
             stop = f"{live_handicap * -1}"
             transition['range'] = f"{start} {stop}"
             prev = live
